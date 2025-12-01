@@ -6,7 +6,7 @@ import re
 def isValidUser(user):
 	regex = r'^[a-zA-Z0-9.%-]+@[a-zA-Z0-9.]+\.[a-zA-Z]{2,}$'
 
-	if re.match(user, regex):
+	if re.match(regex, user):
 		return True
 	return False
 
