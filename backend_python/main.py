@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from typing import Optional
 import json
 from api.login.login import validate_user
 from api.users.create_user import create_email
@@ -29,7 +31,6 @@ async def login(request: Request):
 				status_code=401 if "Credenciales incorrectas" in response.get("error", "") else 400,
 				content=response
 			)
-		
 		return response
 		
 	except json.JSONDecodeError:
