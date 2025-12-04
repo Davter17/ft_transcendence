@@ -1,5 +1,5 @@
-# Equivalente a login.php
 from ..conexion.conexion import get_connection
+import bcrypt
 
 def validate_user(json_data: dict):
 	"""
@@ -20,7 +20,7 @@ def validate_user(json_data: dict):
 		user = cursor.fetchone()
 		
 		if user:
-			if json_data['Password'] == user['password']:
+			if bcrypt.checkpw(json_data['Password'].encode('utf-8'), user['password'].encode('utf-8')):
 				conexion.close()
 				return {
 					"success": True,

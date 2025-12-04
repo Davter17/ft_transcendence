@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import json
 from api.login.login import validate_user
-from api.users.create_user import create_user
+from api.users.create_user import create_email
 
-# Crear la aplicación FastAPI
 app = FastAPI(title="Transcendence API", version="1.0.0")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 @app.get("/")
 def read_root():
@@ -58,7 +60,7 @@ async def register(request: Request):
 		json_input = await request.body()
 		json_data = json.loads(json_input.decode('utf-8'))
 		
-		response = create_user(json_data)
+		response = create_email(json_data)
 		
 		if not response["success"]:
 			return JSONResponse(
