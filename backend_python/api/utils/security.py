@@ -15,7 +15,7 @@ class ErrorResponse(BaseModel):
 	timestamp: str
 
 class TooManyRequestsException(Exception):
-    pass
+	pass
 
 
 async def httpErrorHandler(request: Request, call_next) -> Response | JSONResponse:

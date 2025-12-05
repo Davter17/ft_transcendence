@@ -12,6 +12,8 @@ from api.utils.security import httpErrorHandler
 app = FastAPI(title="Transcendence API", version="1.0.0")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+requestCount = {}
+
 origins = [
 	"http://localhost",
 	"https://localhost",
@@ -26,8 +28,6 @@ app.add_middleware(
 	allow_methods=["*"],
 	allow_headers=["*"],
 	)
-
-requestCount = {}
 
 @app.get("/")
 def read_root():
