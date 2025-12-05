@@ -3,7 +3,8 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 import datetime
 import traceback
-from main import requestCount
+
+requestCount = {}
 
 class ErrorResponse(BaseModel):
 	success: bool
@@ -21,22 +22,19 @@ class TooManyRequestsException(Exception):
 async def httpErrorHandler(request: Request, call_next) -> Response | JSONResponse:
 	try:
 		ip = request.client.host
-		if requestCount[ip]:
-			requestCount[ip] += 1
-		else:
-			requestCount[ip] = 0
+		requestCount[ip] = requestCount.get(ip, 0) + 1
 		if requestCount[ip] >= 500:
-			raise TooManyRequestsException()
+			raise TooManyRequestsException("Demasiadas solicitudes desde esta IP")
 		return await call_next(request)
 	except HTTPException as exc:
 		error = ErrorResponse(
 			success=False,
 			ip=request.client.host,
 			port=request.client.port,
-			error=exc.status_code,
+			error=str(exc.status_code),
 			message=exc.detail if exc.detail else "HTTP error",
 			details="",
-			timestamp=datetime.utcnow().isoformat(),
+			timestamp=datetime.datetime.utcnow().isoformat(),
 		)
 		return JSONResponse(status_code=exc.status_code, content=error.model_dump())
 	except ValueError as exc:
@@ -47,7 +45,7 @@ async def httpErrorHandler(request: Request, call_next) -> Response | JSONRespon
 			error="ValueError",
 			message=str(exc),
 			details="",
-			timestamp=datetime.utcnow().isoformat(),
+			timestamp=datetime.datetime.utcnow().isoformat(),
 		)
 		return JSONResponse(status_code=400, content=error.model_dump())
 	except PermissionError as exc:
@@ -58,7 +56,7 @@ async def httpErrorHandler(request: Request, call_next) -> Response | JSONRespon
 			error="PermissionError",
 			message=str(exc),
 			details="",
-			timestamp=datetime.utcnow().isoformat(),
+			timestamp=datetime.datetime.utcnow().isoformat(),
 		)
 		return JSONResponse(status_code=403, content=error.model_dump())
 	except TooManyRequestsException as exc:
@@ -69,7 +67,7 @@ async def httpErrorHandler(request: Request, call_next) -> Response | JSONRespon
 			error="TooManyRequests",
 			message=str(exc),
 			details="",
-			timestamp=datetime.utcnow().isoformat(),
+			timestamp=datetime.datetime.utcnow().isoformat(),
 		)
 		return JSONResponse(status_code=429, content=error.model_dump())
 	except Exception as exc:
@@ -80,6 +78,6 @@ async def httpErrorHandler(request: Request, call_next) -> Response | JSONRespon
 			error="InternalServerError",
 			message=str(exc),
 			details=traceback.format_exc(),
-			timestamp=datetime.utcnow().isoformat(),
+			timestamp=datetime.datetime.utcnow().isoformat(),
 		)
 		return JSONResponse(status_code=500, content=error.model_dump())
