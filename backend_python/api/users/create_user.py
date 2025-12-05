@@ -1,13 +1,15 @@
 from ..conexion.conexion import get_connection
 import bcrypt
 import re
+from pydantic import BaseModel, field_validator
+from typing import Optional
 
 class UserCreate(BaseModel):
 	email: str
 	username: str
 	password: str
 
-	@validator('email')
+	@field_validator('email')
 	def validate_email(cls, v):
 		regex = r'^[a-zA-Z0-9.%-]+@[a-zA-Z0-9.]+\.[a-zA-Z]{2,}$'
 		if not re.match(regex, v):
@@ -15,7 +17,7 @@ class UserCreate(BaseModel):
 		return v
 	
 	# Validador de contraseña
-	@validator('password')
+	@field_validator('password')
 	def validate_password(cls, v):
 		if len(v) < 6:
 			raise ValueError('La contraseña debe tener al menos 6 caracteres')

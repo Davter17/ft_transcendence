@@ -1,15 +1,33 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, status
+from fastapi.requests import Request
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
-from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
 import json
 from api.login.login import validate_user
 from api.users.create_user import create_email
+from api.utils.security import httpErrorHandler
+
 
 app = FastAPI(title="Transcendence API", version="1.0.0")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+origins = [
+	"http://localhost",
+	"https://localhost",
+	"http://localhost:8080",
+]
+
+app.middleware('http')(httpErrorHandler)
+app.add_middleware(
+	CORSMiddleware,
+	allow_origins = origins,
+	allow_credentials=True,
+	allow_methods=["*"],
+	allow_headers=["*"],
+	)
+
+requestCount = {}
 
 @app.get("/")
 def read_root():

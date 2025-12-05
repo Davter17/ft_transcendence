@@ -1,7 +1,6 @@
 from ..conexion.conexion import get_connection
 import bcrypt
-from typing import Union
-
+from pydantic import BaseModel
 
 class BaseResponse(BaseModel):
 	success: bool
